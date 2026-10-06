@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { ActiveTab } from '../types';
 import { ThemeToggle } from './ThemeToggle';
+import { useLanguage } from '../i18n';
 import { 
   Clock, 
   Timer as TimerIcon, 
@@ -75,6 +76,7 @@ export const Navbar: React.FC<NavbarProps> = ({
   onToggleVoice,
 }) => {
   const [showToolsMenu, setShowToolsMenu] = useState(false);
+  const { language, setLanguage, t } = useLanguage();
   const menuRef = useRef<HTMLDivElement>(null);
 
   const totalCount = stopwatchCount + timerCount + intervalCount + alarmCount;
@@ -114,7 +116,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                 <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 dark:bg-emerald-950/70 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800 shrink-0">
                   <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
                   <span>{totalRunning}</span>
-                  <span className="hidden md:inline">running</span>
+                  <span className="hidden md:inline">{t('running')}</span>
                 </span>
               )}
             </div>
@@ -131,7 +133,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               }`}
             >
               <Layers className="w-3.5 h-3.5" />
-              <span>All ({totalCount})</span>
+              <span>{t('all')} ({totalCount})</span>
             </button>
 
             <button
@@ -143,7 +145,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               }`}
             >
               <Clock className="w-3.5 h-3.5" />
-              <span>Stopwatches ({stopwatchCount})</span>
+              <span>{t('stopwatches')} ({stopwatchCount})</span>
               {runningStopwatchCount > 0 && (
                 <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
               )}
@@ -158,7 +160,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               }`}
             >
               <TimerIcon className="w-3.5 h-3.5" />
-              <span>Timers ({timerCount})</span>
+              <span>{t('timers')} ({timerCount})</span>
               {runningTimerCount > 0 && (
                 <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
               )}
@@ -173,7 +175,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               }`}
             >
               <Bell className="w-3.5 h-3.5" />
-              <span>Alarms ({alarmCount})</span>
+              <span>{t('alarms')} ({alarmCount})</span>
               {enabledAlarmCount > 0 && <span className="w-1.5 h-1.5 rounded-full bg-indigo-500" />}
             </button>
 
@@ -202,7 +204,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               title="Preset Library"
             >
               <Sparkles className="w-4 h-4 text-amber-500" />
-              <span className="hidden sm:inline">Presets</span>
+              <span className="hidden sm:inline">{t('presets')}</span>
             </button>
 
             {/* Quick Audio Mute Toggle */}
@@ -216,6 +218,11 @@ export const Navbar: React.FC<NavbarProps> = ({
               title={isMuted ? 'Sound Muted (Click to enable)' : 'Sound Active (Click to mute)'}
             >
               {isMuted ? <VolumeX className="w-4 h-4" /> : <Volume2 className="w-4 h-4" />}
+            </button>
+
+            {/* Language Toggle */}
+            <button onClick={() => setLanguage(language === 'es' ? 'en' : 'es')} className="p-2 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700 text-[10px] font-black" title={language === 'es' ? 'Cambiar a English' : 'Switch to Español'} aria-label={t('language')}>
+              {language === 'es' ? 'ES' : 'EN'}
             </button>
 
             {/* Theme Toggle */}
@@ -360,7 +367,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               title="Add New Clock"
             >
               <Plus className="w-4 h-4" />
-              <span className="hidden sm:inline">Add</span>
+              <span className="hidden sm:inline">{t('add')}</span>
             </button>
           </div>
         </div>
