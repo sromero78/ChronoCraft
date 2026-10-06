@@ -15,6 +15,7 @@ import {
   TimerPreset,
   ClockHistoryEntry
 } from './types';
+import { AlarmItem } from './alarmTypes';
 import { 
   loadStopwatches, 
   saveStopwatches, 
@@ -62,6 +63,9 @@ import { SettingsModal } from './components/SettingsModal';
 import { HistoryModal } from './components/HistoryModal';
 import { EmptyState } from './components/EmptyState';
 import { ColorFilterDropdown } from './components/ColorFilterDropdown';
+import { AlarmsView } from './components/AlarmsView';
+import { AlarmCreateModal } from './components/AlarmCreateModal';
+import { loadAlarms, saveAlarms } from './utils/alarmStorage';
 import { 
   Search, 
   Clock, 
@@ -139,9 +143,14 @@ export default function App() {
     ];
   });
 
-  // 4. Custom Presets State
+  // 4. Weekly Alarms State
+  const [alarms, setAlarms] = useState<AlarmItem[]>(() => loadAlarms());
+  const [isAlarmCreateOpen, setIsAlarmCreateOpen] = useState(false);
+  const [editingAlarm, setEditingAlarm] = useState<AlarmItem | null>(null);
+
+  // 5. Custom Presets State
   const [customPresets, setCustomPresets] = useState<TimerPreset[]>(() => loadCustomPresets());
-  // 5. Clock Run History State
+  // 6. Clock Run History State
   const [clockHistory, setClockHistory] = useState<ClockHistoryEntry[]>(() => loadClockHistory());
   // Preferences & Layout
   const [wakeLockPref, setWakeLockPref] = useState<boolean>(() => loadWakeLockPreference());
@@ -537,6 +546,23 @@ export default function App() {
   useEffect(() => {
     saveCustomPresets(customPresets);
   }, [customPresets]);
+
+  useEffect(() => {
+    saveAlarms(alarms);
+  }, [alarms]);
+
+  const handleSaveAlarm = (data: Omit<AlarmItem, 'id' | 'createdAt'>, editingId?: string) => {
+    if (editingId) {
+      setAlarms((prev) => prev.map((a) => a.id === editingId ? { ...a, ...data } : a));
+      return;
+    }
+    setAlarms((prev) => [...prev, { ...data, id: `alarm-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`, createdAt: Date.now() }]);
+  };
+
+  const handleToggleAlarm = (id: string) => setAlarms((prev) => prev.map((a) => a.id === id ? { ...a, enabled: !a.enabled } : a));
+  const handleDeleteAlarm = (id: string) => setAlarms((prev) => prev.filter((a) => a.id !== id));
+  const handleDuplicateAlarm = (alarm: AlarmItem) => setAlarms((prev) => [...prev, { ...alarm, id: `alarm-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`, name: `${alarm.name} copia`, createdAt: Date.now() }]);
+  const handleToggleAlarmDay = (weekday: number, enabled: boolean) => setAlarms((prev) => prev.map((a) => a.weekdays.includes(weekday as any) ? { ...a, enabled } : a));
 
 // File: src/App.tsx
   const handleOpenClockHistory = (clockId: string, clockName: string) => {
@@ -1215,11 +1241,13 @@ export default function App() {
   const showStopwatches = activeTab === 'all' || activeTab === 'stopwatches';
   const showTimers = activeTab === 'all' || activeTab === 'timers';
   const showIntervals = activeTab === 'all' || activeTab === 'intervals';
+  const showAlarms = activeTab === 'alarms';
 
   const isTotalEmpty =
     (showStopwatches ? filteredStopwatches.length : 0) +
       (showTimers ? filteredTimers.length : 0) +
-      (showIntervals ? filteredIntervals.length : 0) ===
+      (showIntervals ? filteredIntervals.length : 0) +
+      (showAlarms ? alarms.length : 0) ===
     0;
 
   // Selected Focus & Analytics Items
@@ -1412,6 +1440,8 @@ export default function App() {
         runningTimerCount={runningTimerCount}
         intervalCount={intervals.length}
         runningIntervalCount={runningIntervalCount}
+        alarmCount={alarms.length}
+        enabledAlarmCount={alarms.filter((a) => a.enabled).length}
         onOpenCreate={(type = 'timer') => {
           setCreateInitialType(type);
           setIsCreateOpen(true);
@@ -1433,7 +1463,7 @@ export default function App() {
       <NotificationPermissionBanner />
 
       {/* Sub Toolbar: Search, Color Filter & Quick Create Buttons */}
-      <div className="relative z-30 max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 w-full pt-3 sm:pt-6 pb-2">
+      {activeTab !== 'alarms' && <div className="relative z-30 max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 w-full pt-3 sm:pt-6 pb-2">
         <div className="relative z-30 flex flex-col gap-2.5 bg-white/70 dark:bg-slate-900/70 p-2.5 sm:p-3 rounded-2xl border border-slate-200/70 dark:border-slate-800 shadow-sm backdrop-blur">
           
           <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2.5">
@@ -1587,11 +1617,21 @@ export default function App() {
             </div>
           </div>
         </div>
-      </div>
+      </div>}
 
       {/* Main Container Content */}
       <main className="max-w-7xl mx-auto px-2.5 sm:px-4 md:px-6 lg:px-8 w-full py-4 sm:py-6 flex-1">
-        {isTotalEmpty ? (
+        {showAlarms ? (
+          <AlarmsView
+            alarms={alarms}
+            onCreate={() => { setEditingAlarm(null); setIsAlarmCreateOpen(true); }}
+            onToggle={handleToggleAlarm}
+            onEdit={(alarm) => { setEditingAlarm(alarm); setIsAlarmCreateOpen(true); }}
+            onDuplicate={handleDuplicateAlarm}
+            onDelete={handleDeleteAlarm}
+            onToggleDay={handleToggleAlarmDay}
+          />
+        ) : isTotalEmpty ? (
           <EmptyState
             activeTab={activeTab}
             onOpenCreate={(type = 'timer') => {
@@ -1786,6 +1826,13 @@ export default function App() {
           ChronoCraft Multi-Timer, Stopwatch & HIIT Suite • Modern Native Web Application
         </p>
       </footer>
+
+      <AlarmCreateModal
+        isOpen={isAlarmCreateOpen}
+        editingAlarm={editingAlarm}
+        onClose={() => { setIsAlarmCreateOpen(false); setEditingAlarm(null); }}
+        onSave={handleSaveAlarm}
+      />
 
       {/* Modals */}
       <CreateModal
