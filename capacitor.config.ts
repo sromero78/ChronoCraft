@@ -21,7 +21,7 @@ export interface CapacitorConfig {
 const IS_DEV_MODE = false; 
 
 const config: CapacitorConfig = {
-  appId: 'com.arafat.chrono',
+  appId: 'com.sromero78.chronocraft',
   appName: 'ChronoCraft',
   webDir: 'dist',
   backgroundColor: '#020617',
