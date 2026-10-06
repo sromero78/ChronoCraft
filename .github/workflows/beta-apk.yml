@@ -1,6 +1,9 @@
 name: Beta APK
 
 on:
+  push:
+    branches:
+      - beta
   workflow_dispatch:
 
 permissions:
