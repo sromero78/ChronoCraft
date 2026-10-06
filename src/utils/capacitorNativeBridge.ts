@@ -50,6 +50,7 @@ interface HapticsPlugin {
 const LocalNotifications = registerPlugin<LocalNotificationsPlugin>('LocalNotifications');
 const Haptics = registerPlugin<HapticsPlugin>('Haptics');
 const ChronometerNotification = registerPlugin<any>('ChronometerNotification');
+const ChronoAlarm = registerPlugin<any>('ChronoAlarm');
 
 class CapacitorNativeBridge {
   private isInitialized = false;
@@ -275,6 +276,19 @@ class CapacitorNativeBridge {
       await this.triggerHaptic('alarm');
     } catch (e) {
       console.warn('Native immediate alarm note:', e);
+    }
+  }
+
+  /** Synchronizes weekly alarm definitions with Android's native AlarmManager layer. */
+  public async syncWeeklyAlarms(alarms: Array<{
+    id: string; name: string; hour: number; minute: number; weekdays: number[];
+    enabled: boolean; vibrate: boolean; gradualVolume: boolean; snoozeMinutes: number; sound: string;
+  }>): Promise<void> {
+    if (!this.isAndroid()) return;
+    try {
+      await ChronoAlarm.sync({ alarms });
+    } catch (e) {
+      console.warn('Native weekly alarm sync failed:', e);
     }
   }
 
