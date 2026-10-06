@@ -1,7 +1,7 @@
 apply plugin: 'com.android.application'
 
 android {
-    namespace = "com.sromero78.chronocraft"
+    namespace = "com.arafat.chrono"
     compileSdk = rootProject.ext.compileSdkVersion
     defaultConfig {
         applicationId "com.sromero78.chronocraft"
