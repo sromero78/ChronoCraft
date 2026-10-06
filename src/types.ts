@@ -87,7 +87,7 @@ export interface IntervalTimerItem {
   createdAt: number;
 }
 
-export type ActiveTab = 'all' | 'stopwatches' | 'timers' | 'intervals';
+export type ActiveTab = 'all' | 'stopwatches' | 'timers' | 'intervals' | 'alarms';
 export type ViewLayout = 'grid' | 'compact';
 export type SoundPreset = 'chime' | 'digital' | 'bell' | 'marimba' | 'gentle';
 
