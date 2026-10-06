@@ -549,6 +549,7 @@ export default function App() {
 
   useEffect(() => {
     saveAlarms(alarms);
+    capacitorBridge.syncWeeklyAlarms(alarms);
   }, [alarms]);
 
   const handleSaveAlarm = (data: Omit<AlarmItem, 'id' | 'createdAt'>, editingId?: string) => {
