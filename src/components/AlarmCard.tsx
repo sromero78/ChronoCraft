@@ -2,6 +2,7 @@ import React from 'react';
 import { AlarmItem, WEEKDAYS } from '../alarmTypes';
 import { getColorTheme } from '../constants/colors';
 import { Bell, Copy, Pencil, Trash2 } from 'lucide-react';
+import { useLanguage } from '../i18n';
 
 interface AlarmCardProps {
   alarm: AlarmItem;
@@ -12,6 +13,7 @@ interface AlarmCardProps {
 }
 
 export const AlarmCard: React.FC<AlarmCardProps> = ({ alarm, onToggle, onEdit, onDuplicate, onDelete }) => {
+  const { t } = useLanguage();
   const theme = getColorTheme(alarm.color);
   const time = `${String(alarm.hour).padStart(2, '0')}:${String(alarm.minute).padStart(2, '0')}`;
   const days = WEEKDAYS.filter((day) => alarm.weekdays.includes(day.id)).map((day) => day.short).join(' ');
@@ -32,7 +34,7 @@ export const AlarmCard: React.FC<AlarmCardProps> = ({ alarm, onToggle, onEdit, o
           aria-checked={alarm.enabled}
           onClick={() => onToggle(alarm.id)}
           className={`relative w-9 h-5 rounded-full transition-colors shrink-0 ${alarm.enabled ? 'bg-emerald-500' : 'bg-slate-300 dark:bg-slate-700'}`}
-          title={alarm.enabled ? 'Desactivar alarma' : 'Activar alarma'}
+          title={alarm.enabled ? t('deactivateAlarm') : t('activateAlarm')}
         >
           <span className={`absolute top-0.5 w-4 h-4 bg-white rounded-full shadow transition-transform ${alarm.enabled ? 'translate-x-0.5' : '-translate-x-4.5'}`} style={{ right: alarm.enabled ? 2 : undefined, left: alarm.enabled ? undefined : 2 }} />
         </button>
@@ -43,13 +45,13 @@ export const AlarmCard: React.FC<AlarmCardProps> = ({ alarm, onToggle, onEdit, o
           <div className="font-mono tabular-nums text-3xl sm:text-4xl font-black tracking-tight text-slate-900 dark:text-white">{time}</div>
           <Bell className="w-5 h-5 shrink-0" style={{ color: theme.accentHex }} />
         </div>
-        <div className="mt-1 text-[10px] sm:text-xs font-bold tracking-wider text-slate-400">{days || 'UNA VEZ'}</div>
+        <div className="mt-1 text-[10px] sm:text-xs font-bold tracking-wider text-slate-400">{days || t('oneTime')}</div>
       </button>
 
       <div className="px-2.5 py-2 flex items-center justify-end gap-1 border-t border-slate-100 dark:border-slate-800">
-        <button onClick={() => onEdit(alarm)} className="p-1.5 rounded-lg text-slate-400 hover:text-indigo-500 hover:bg-slate-100 dark:hover:bg-slate-800" title="Editar"><Pencil className="w-3.5 h-3.5" /></button>
-        <button onClick={() => onDuplicate(alarm)} className="p-1.5 rounded-lg text-slate-400 hover:text-indigo-500 hover:bg-slate-100 dark:hover:bg-slate-800" title="Duplicar"><Copy className="w-3.5 h-3.5" /></button>
-        <button onClick={() => onDelete(alarm.id)} className="p-1.5 rounded-lg text-slate-400 hover:text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-950/30" title="Eliminar"><Trash2 className="w-3.5 h-3.5" /></button>
+        <button onClick={() => onEdit(alarm)} className="p-1.5 rounded-lg text-slate-400 hover:text-indigo-500 hover:bg-slate-100 dark:hover:bg-slate-800" title={t('edit')}><Pencil className="w-3.5 h-3.5" /></button>
+        <button onClick={() => onDuplicate(alarm)} className="p-1.5 rounded-lg text-slate-400 hover:text-indigo-500 hover:bg-slate-100 dark:hover:bg-slate-800" title={t('duplicate')}><Copy className="w-3.5 h-3.5" /></button>
+        <button onClick={() => onDelete(alarm.id)} className="p-1.5 rounded-lg text-slate-400 hover:text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-950/30" title={t('delete')}><Trash2 className="w-3.5 h-3.5" /></button>
       </div>
     </article>
   );
