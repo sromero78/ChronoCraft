@@ -19,7 +19,8 @@ import {
   MicOff,
   SlidersHorizontal,
   Settings2,
-  History
+  History,
+  Bell
 } from 'lucide-react';
 
 interface NavbarProps {
@@ -31,6 +32,8 @@ interface NavbarProps {
   runningTimerCount: number;
   intervalCount?: number;
   runningIntervalCount?: number;
+  alarmCount?: number;
+  enabledAlarmCount?: number;
   onOpenCreate: (type?: 'stopwatch' | 'timer' | 'interval') => void;
   onStartAll: () => void;
   onPauseAll: () => void;
@@ -55,6 +58,8 @@ export const Navbar: React.FC<NavbarProps> = ({
   runningTimerCount,
   intervalCount = 0,
   runningIntervalCount = 0,
+  alarmCount = 0,
+  enabledAlarmCount = 0,
   onOpenCreate,
   onStartAll,
   onPauseAll,
@@ -72,7 +77,7 @@ export const Navbar: React.FC<NavbarProps> = ({
   const [showToolsMenu, setShowToolsMenu] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
 
-  const totalCount = stopwatchCount + timerCount + intervalCount;
+  const totalCount = stopwatchCount + timerCount + intervalCount + alarmCount;
   const totalRunning = runningStopwatchCount + runningTimerCount + runningIntervalCount;
 
   useEffect(() => {
@@ -157,6 +162,19 @@ export const Navbar: React.FC<NavbarProps> = ({
               {runningTimerCount > 0 && (
                 <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
               )}
+            </button>
+
+            <button
+              onClick={() => onSelectTab('alarms')}
+              className={`px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 whitespace-nowrap transition-all cursor-pointer ${
+                activeTab === 'alarms'
+                  ? 'bg-white dark:bg-slate-900 text-indigo-600 dark:text-indigo-400 shadow-xs'
+                  : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200'
+              }`}
+            >
+              <Bell className="w-3.5 h-3.5" />
+              <span>Alarms ({alarmCount})</span>
+              {enabledAlarmCount > 0 && <span className="w-1.5 h-1.5 rounded-full bg-indigo-500" />}
             </button>
 
             <button
@@ -383,6 +401,18 @@ export const Navbar: React.FC<NavbarProps> = ({
           >
             <TimerIcon className="w-3.5 h-3.5 shrink-0" />
             <span>Timers ({timerCount})</span>
+          </button>
+
+          <button
+            onClick={() => onSelectTab('alarms')}
+            className={`py-1 px-2.5 rounded-lg flex items-center justify-center gap-1 shrink-0 whitespace-nowrap transition-colors cursor-pointer ${
+              activeTab === 'alarms'
+                ? 'bg-indigo-50 dark:bg-indigo-950/70 text-indigo-600 dark:text-indigo-400 font-bold'
+                : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200'
+            }`}
+          >
+            <Bell className="w-3.5 h-3.5 shrink-0" />
+            <span>Alarms ({alarmCount})</span>
           </button>
 
           <button
