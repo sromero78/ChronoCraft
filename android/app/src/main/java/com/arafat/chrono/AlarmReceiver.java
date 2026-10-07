@@ -19,6 +19,7 @@ public class AlarmReceiver extends BroadcastReceiver {
 
     @Override public void onReceive(Context context, Intent intent) {
         String id=intent.getStringExtra("alarmId");
+        AlarmDiagnostics.mark(context,"receiver",id==null ? "" : id);
         JSONObject alarm=AlarmStore.find(context,id);
         if(alarm==null || !alarm.optBoolean("enabled",true)) return;
 
@@ -72,5 +73,6 @@ public class AlarmReceiver extends BroadcastReceiver {
             b.setPriority(Notification.PRIORITY_MAX).setSound(sound);
         }
         nm.notify(AlarmScheduler.requestCode(id),b.build());
+        AlarmDiagnostics.mark(context,"notification",id);
     }
 }
