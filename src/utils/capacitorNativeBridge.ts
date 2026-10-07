@@ -285,6 +285,16 @@ class CapacitorNativeBridge {
     return result?.granted === true;
   }
 
+  public async getAlarmDiagnostics(): Promise<any> {
+    if (!this.isAndroid()) return null;
+    return await ChronoAlarm.getDiagnostics();
+  }
+
+  public async clearAlarmDiagnostics(): Promise<void> {
+    if (!this.isAndroid()) return;
+    await ChronoAlarm.clearDiagnostics();
+  }
+
   public async getFullScreenIntentStatus(): Promise<boolean> {
     if (!this.isAndroid()) return true;
     const result = await ChronoAlarm.getFullScreenIntentStatus();
