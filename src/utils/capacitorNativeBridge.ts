@@ -285,6 +285,11 @@ class CapacitorNativeBridge {
     return result?.granted === true;
   }
 
+  public async requestAlarmNotificationPermission(): Promise<boolean> {
+    if (!this.isAndroid()) return true;
+    return await this.requestPermissions();
+  }
+
   public async getAlarmDiagnostics(): Promise<any> {
     if (!this.isAndroid()) return null;
     return await ChronoAlarm.getDiagnostics();
