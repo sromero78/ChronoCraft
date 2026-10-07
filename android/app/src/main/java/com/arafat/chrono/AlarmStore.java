@@ -27,6 +27,18 @@ public final class AlarmStore {
         return null;
     }
 
+    public static void setEnabled(Context context, String id, boolean enabled) {
+        JSONArray items = load(context);
+        for (int i=0;i<items.length();i++) {
+            JSONObject a=items.optJSONObject(i);
+            if(a!=null && id.equals(a.optString("id"))) {
+                try { a.put("enabled", enabled); } catch (Exception ignored) {}
+                break;
+            }
+        }
+        save(context, items);
+    }
+
     public static void rescheduleAll(Context context) {
         JSONArray items=load(context);
         for(int i=0;i<items.length();i++) {
