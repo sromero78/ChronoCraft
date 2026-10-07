@@ -51,7 +51,7 @@ public final class AlarmScheduler {
         PendingIntent showIntent = PendingIntent.getActivity(context, requestCode(id + "-show"), show,
             PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
         AlarmManager manager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
-        if (manager != null) manager.setAlarmClock(new AlarmManager.AlarmClockInfo(trigger, showIntent), operation);
+        if (manager != null) { manager.setAlarmClock(new AlarmManager.AlarmClockInfo(trigger, showIntent), operation); AlarmDiagnostics.scheduled(context,id,trigger); }
     }
 
     public static void cancel(Context context, String id) {
