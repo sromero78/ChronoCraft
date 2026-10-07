@@ -27,6 +27,7 @@ public class AlarmActivity extends Activity {
 
     @Override protected void onCreate(Bundle state) {
         super.onCreate(state);
+        AlarmDiagnostics.mark(this,"activity",getIntent().getStringExtra("alarmId"));
         setShowWhenLocked(true);
         setTurnScreenOn(true);
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
