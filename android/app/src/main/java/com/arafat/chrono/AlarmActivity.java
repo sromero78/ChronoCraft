@@ -5,13 +5,7 @@ import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
-import android.media.AudioAttributes;
-import android.media.Ringtone;
-import android.media.RingtoneManager;
-import android.net.Uri;
 import android.os.Bundle;
-import android.os.VibrationEffect;
-import android.os.Vibrator;
 import android.view.Gravity;
 import android.view.WindowManager;
 import android.widget.Button;
@@ -20,8 +14,6 @@ import android.widget.TextView;
 import org.json.JSONObject;
 
 public class AlarmActivity extends Activity {
-    private Ringtone ringtone;
-    private Vibrator vibrator;
     private String alarmId;
     private int snoozeMinutes = 5;
 
@@ -70,18 +62,7 @@ public class AlarmActivity extends Activity {
         root.addView(stop,stopParams);
         setContentView(root);
 
-        Uri uri=RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM);
-        if(uri==null) uri=RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
-        ringtone=RingtoneManager.getRingtone(this,uri);
-        if(ringtone!=null) {
-            ringtone.setAudioAttributes(new AudioAttributes.Builder().setUsage(AudioAttributes.USAGE_ALARM).build());
-            if(android.os.Build.VERSION.SDK_INT>=android.os.Build.VERSION_CODES.P) ringtone.setLooping(true);
-            ringtone.play();
-        }
-        if(vibrate) {
-            vibrator=(Vibrator)getSystemService(Context.VIBRATOR_SERVICE);
-            if(vibrator!=null) vibrator.vibrate(VibrationEffect.createWaveform(new long[]{0,700,500},0));
-        }
+
     }
 
     private void silence() {
