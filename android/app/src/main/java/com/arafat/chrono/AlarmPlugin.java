@@ -1,6 +1,7 @@
 package com.arafat.chrono;
 
 import android.app.AlarmManager;
+import android.app.NotificationManager;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
@@ -48,6 +49,26 @@ public class AlarmPlugin extends Plugin {
         com.getcapacitor.JSObject result=new com.getcapacitor.JSObject();
         result.put("granted",granted);
         call.resolve(result);
+    }
+
+    @PluginMethod
+    public void getFullScreenIntentStatus(PluginCall call) {
+        NotificationManager manager=(NotificationManager)getContext().getSystemService(Context.NOTIFICATION_SERVICE);
+        boolean granted=android.os.Build.VERSION.SDK_INT < 34 || (manager!=null && manager.canUseFullScreenIntent());
+        com.getcapacitor.JSObject result=new com.getcapacitor.JSObject();
+        result.put("granted",granted);
+        call.resolve(result);
+    }
+
+    @PluginMethod
+    public void openFullScreenIntentSettings(PluginCall call) {
+        if(android.os.Build.VERSION.SDK_INT >= 34) {
+            Intent intent=new Intent(Settings.ACTION_MANAGE_APP_USE_FULL_SCREEN_INTENT,
+                Uri.parse("package:"+getContext().getPackageName()));
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            getContext().startActivity(intent);
+        }
+        call.resolve();
     }
 
     @PluginMethod
