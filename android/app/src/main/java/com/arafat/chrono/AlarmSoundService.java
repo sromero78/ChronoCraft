@@ -31,7 +31,12 @@ public class AlarmSoundService extends Service {
   PendingIntent ps=PendingIntent.getService(this,AlarmScheduler.requestCode(alarmId+"-snooze-action"),snooze,PendingIntent.FLAG_UPDATE_CURRENT|PendingIntent.FLAG_IMMUTABLE);
   PendingIntent pt=PendingIntent.getService(this,AlarmScheduler.requestCode(alarmId+"-stop-action"),stop,PendingIntent.FLAG_UPDATE_CURRENT|PendingIntent.FLAG_IMMUTABLE);
   Notification.Builder b=Build.VERSION.SDK_INT>=26?new Notification.Builder(this,CHANNEL):new Notification.Builder(this);
-  return b.setSmallIcon(R.mipmap.ic_launcher).setContentTitle(name).setContentText("Alarma").setCategory(Notification.CATEGORY_ALARM).setVisibility(Notification.VISIBILITY_PUBLIC).setOngoing(true).setFullScreenIntent(fs,true).setContentIntent(fs).addAction(0,"POSPONER",ps).addAction(0,"DETENER",pt).build();
+  return b.setSmallIcon(R.mipmap.ic_launcher).setContentTitle(name).setContentText("Alarma activa")
+   .setCategory(Notification.CATEGORY_ALARM).setVisibility(Notification.VISIBILITY_PUBLIC)
+   .setOngoing(true).setOnlyAlertOnce(true).setFullScreenIntent(fs,true).setContentIntent(fs)
+   .setStyle(new Notification.BigTextStyle().bigText("Alarma activa · usa los botones para posponer o detener"))
+   .addAction(new Notification.Action.Builder(null,"POSPONER "+snoozeMinutes+" MIN",ps).build())
+   .addAction(new Notification.Action.Builder(null,"DETENER",pt).build()).build();
  }
  private void scheduleSnooze(){
   JSONObject alarm=AlarmStore.find(this,alarmId); if(alarm==null)return;
