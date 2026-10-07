@@ -1,5 +1,11 @@
 package com.arafat.chrono;
 
+import android.app.AlarmManager;
+import android.content.Context;
+import android.content.Intent;
+import android.net.Uri;
+import android.provider.Settings;
+
 import com.getcapacitor.JSArray;
 import com.getcapacitor.Plugin;
 import com.getcapacitor.PluginCall;
@@ -33,6 +39,26 @@ public class AlarmPlugin extends Plugin {
         } catch (Exception e) {
             call.reject("ALARM_SCHEDULE_FAILED", e);
         }
+    }
+
+    @PluginMethod
+    public void getExactAlarmStatus(PluginCall call) {
+        AlarmManager manager=(AlarmManager)getContext().getSystemService(Context.ALARM_SERVICE);
+        boolean granted=android.os.Build.VERSION.SDK_INT < android.os.Build.VERSION_CODES.S || (manager!=null && manager.canScheduleExactAlarms());
+        com.getcapacitor.JSObject result=new com.getcapacitor.JSObject();
+        result.put("granted",granted);
+        call.resolve(result);
+    }
+
+    @PluginMethod
+    public void openExactAlarmSettings(PluginCall call) {
+        if(android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.S) {
+            Intent intent=new Intent(Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM,
+                Uri.parse("package:"+getContext().getPackageName()));
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            getContext().startActivity(intent);
+        }
+        call.resolve();
     }
 
     @PluginMethod
