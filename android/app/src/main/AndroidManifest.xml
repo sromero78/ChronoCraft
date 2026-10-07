@@ -28,6 +28,9 @@
             android:name=".AlarmActivity"
             android:exported="false"
             android:excludeFromRecents="true"
+            android:taskAffinity="${applicationId}.alarm"
+            android:launchMode="singleTask"
+            android:noHistory="true"
             android:showWhenLocked="true"
             android:turnScreenOn="true"
             android:theme="@style/AppTheme.NoActionBar" />
