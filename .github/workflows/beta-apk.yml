@@ -69,8 +69,8 @@ jobs:
           VERSION_NAME=$(grep -oP 'versionName\s+"\K[^"]+' android/app/build.gradle)
           VERSION_CODE=$(grep -oP 'versionCode\s+\K[0-9]+' android/app/build.gradle)
           SHORT_SHA=$(git rev-parse --short HEAD)
-          TAG="beta-${VERSION_NAME}-${VERSION_CODE}-${GITHUB_RUN_NUMBER}"
-          APK="ChronoCraft-${VERSION_NAME}-beta.${GITHUB_RUN_NUMBER}.apk"
+          TAG="v${VERSION_NAME}"
+          APK="ChronoCraft-${VERSION_NAME}.apk"
           cp "android/app/build/outputs/apk/release/ChronoCraft-v${VERSION_NAME}.apk" "$APK"
           echo "tag=$TAG" >> "$GITHUB_OUTPUT"
           echo "apk=$APK" >> "$GITHUB_OUTPUT"
@@ -88,7 +88,7 @@ jobs:
           gh release create "$TAG" "$APK" \
             --repo "$GITHUB_REPOSITORY" \
             --target "$GITHUB_SHA" \
-            --title "ChronoCraft Beta ${VERSION_NAME} · build ${GITHUB_RUN_NUMBER}" \
+            --title "ChronoCraft ${VERSION_NAME}" \
             --notes "Beta automática de ChronoCraft. Commit: ${SHORT_SHA}." \
             --prerelease
 
