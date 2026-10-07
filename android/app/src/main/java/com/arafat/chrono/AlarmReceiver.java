@@ -59,7 +59,7 @@ public class AlarmReceiver extends BroadcastReceiver {
         Notification.Builder b=Build.VERSION.SDK_INT>=Build.VERSION_CODES.O
             ? new Notification.Builder(context,CHANNEL_ID)
             : new Notification.Builder(context);
-        b.setSmallIcon(com.arafat.chrono.R.drawable.ic_stat_icon_config_sample)
+        b.setSmallIcon(com.arafat.chrono.R.mipmap.ic_launcher)
             .setContentTitle(name)
             .setContentText("Alarma")
             .setCategory(Notification.CATEGORY_ALARM)
