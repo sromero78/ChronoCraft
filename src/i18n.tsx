@@ -16,7 +16,7 @@ const messages = {
     deactivateDay: 'DESACTIVAR DÍA', activateDay: 'ACTIVAR DÍA', oneAlarm: 'alarma', manyAlarms: 'alarmas',
     oneTime: 'UNA VEZ', edit: 'Editar', duplicate: 'Duplicar', delete: 'Eliminar',
     activateAlarm: 'Activar alarma', deactivateAlarm: 'Desactivar alarma', language: 'Idioma',
-    spanish: 'Español', english: 'English'
+    spanish: 'Español', english: 'English', tools: 'Herramientas', preferences: 'Preferencias y asistencia', history: 'Historial', view: 'Ver', settings: 'Sonido y ajustes', configure: 'Configurar', wakeLock: 'Mantener pantalla activa', voiceCoach: 'Asistente de voz', batchControls: 'Controles en grupo', startAll: 'Iniciar todos', pauseAll: 'Pausar todos', resetAll: 'Reiniciar todos', soundActive: 'Sonido activo', soundMuted: 'Sonido silenciado', addClock: 'Añadir reloj', digitalAlarm: 'Alarma digital', gentleChime: 'Campanillas suaves', classicBell: 'Campana clásica', softPulse: 'Pulso suave'
   },
   en: {
     all: 'All', stopwatches: 'Stopwatches', timers: 'Timers', alarms: 'Alarms',
@@ -29,7 +29,7 @@ const messages = {
     deactivateDay: 'DISABLE DAY', activateDay: 'ENABLE DAY', oneAlarm: 'alarm', manyAlarms: 'alarms',
     oneTime: 'ONCE', edit: 'Edit', duplicate: 'Duplicate', delete: 'Delete',
     activateAlarm: 'Enable alarm', deactivateAlarm: 'Disable alarm', language: 'Language',
-    spanish: 'Español', english: 'English'
+    spanish: 'Español', english: 'English', tools: 'Tools', preferences: 'Preferences & assist', history: 'Run history', view: 'View', settings: 'Sound & settings', configure: 'Configure', wakeLock: 'Screen wake lock', voiceCoach: 'Voice coach', batchControls: 'Batch controls', startAll: 'Start all', pauseAll: 'Pause all', resetAll: 'Reset all', soundActive: 'Sound active', soundMuted: 'Sound muted', addClock: 'Add clock', digitalAlarm: 'Digital alarm', gentleChime: 'Gentle chime', classicBell: 'Classic bell', softPulse: 'Soft pulse'
   }
 } as const;
 
