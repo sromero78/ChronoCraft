@@ -65,6 +65,7 @@ import { EmptyState } from './components/EmptyState';
 import { ColorFilterDropdown } from './components/ColorFilterDropdown';
 import { AlarmsView } from './components/AlarmsView';
 import { AlarmCreateModal } from './components/AlarmCreateModal';
+import { AlarmCard } from './components/AlarmCard';
 import { loadAlarms, saveAlarms } from './utils/alarmStorage';
 import { 
   Search, 
@@ -72,7 +73,8 @@ import {
   Timer as TimerIcon, 
   Flame,
   LayoutGrid, 
-  List 
+  List,
+  Bell 
 } from 'lucide-react';
 
 export default function App() {
@@ -1242,7 +1244,7 @@ export default function App() {
   const showStopwatches = activeTab === 'all' || activeTab === 'stopwatches';
   const showTimers = activeTab === 'all' || activeTab === 'timers';
   const showIntervals = activeTab === 'all' || activeTab === 'intervals';
-  const showAlarms = activeTab === 'alarms';
+  const showAlarms = activeTab === 'all' || activeTab === 'alarms';
 
   const isTotalEmpty =
     (showStopwatches ? filteredStopwatches.length : 0) +
@@ -1622,7 +1624,7 @@ export default function App() {
 
       {/* Main Container Content */}
       <main className="max-w-7xl mx-auto px-2.5 sm:px-4 md:px-6 lg:px-8 w-full py-4 sm:py-6 flex-1">
-        {showAlarms ? (
+        {activeTab === 'alarms' ? (
           <AlarmsView
             alarms={alarms}
             onCreate={() => { setEditingAlarm(null); setIsAlarmCreateOpen(true); }}
@@ -1643,6 +1645,28 @@ export default function App() {
           />
         ) : (
           <div className="space-y-6 sm:space-y-10">
+            {/* ALARMS SECTION */}
+            {activeTab === 'all' && alarms.length > 0 && (
+              <section className="space-y-3 sm:space-y-4">
+                <div className="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-2">
+                  <div className="flex items-center gap-1.5 sm:gap-2">
+                    <Bell className="w-4 h-4 sm:w-5 sm:h-5 text-indigo-500" />
+                    <h2 className="text-sm sm:text-base font-bold text-slate-800 dark:text-slate-100">Alarmas ({alarms.length})</h2>
+                  </div>
+                  <button onClick={() => setActiveTab('alarms')} className="text-xs font-semibold text-indigo-600 dark:text-indigo-400 hover:underline">
+                    Ver todas las alarmas →
+                  </button>
+                </div>
+                <div className={viewLayout === 'compact' ? 'flex flex-col gap-2' : 'grid gap-2.5 sm:gap-4 lg:gap-6 grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4'}>
+                  {alarms.map((alarm) => (
+                    <AlarmCard key={alarm.id} alarm={alarm} onToggle={handleToggleAlarm}
+                      onEdit={(item) => { setEditingAlarm(item); setIsAlarmCreateOpen(true); }}
+                      onDuplicate={handleDuplicateAlarm} onDelete={handleDeleteAlarm} />
+                  ))}
+                </div>
+              </section>
+            )}
+
             {/* 1. STOPWATCHES SECTION */}
             {showStopwatches && filteredStopwatches.length > 0 && (
               <section className="space-y-3 sm:space-y-4">
