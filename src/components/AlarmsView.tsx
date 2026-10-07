@@ -1,4 +1,5 @@
 import React, { useMemo, useState } from 'react';
+import { capacitorBridge } from '../utils/capacitorNativeBridge';
 import { AlarmItem, WEEKDAYS } from '../alarmTypes';
 import { AlarmCard } from './AlarmCard';
 import { Bell, CalendarDays, ListOrdered, Plus } from 'lucide-react';
@@ -29,6 +30,10 @@ function nextOccurrence(alarm: AlarmItem, now = new Date()) {
 export const AlarmsView: React.FC<AlarmsViewProps> = (props) => {
   const [mode, setMode] = useState<'week' | 'next'>('week');
   const { t } = useLanguage();
+  const [diag, setDiag] = useState<any>(null);
+  const [diagLoading, setDiagLoading] = useState(false);
+  const refreshDiag = async () => { setDiagLoading(true); try { setDiag(await capacitorBridge.getAlarmDiagnostics()); } finally { setDiagLoading(false); } };
+  const fmt = (v: number) => v ? new Date(v).toLocaleString() : '—';
   const upcoming = useMemo(() => [...props.alarms].filter(a => a.enabled).sort((a,b) => nextOccurrence(a)-nextOccurrence(b)), [props.alarms]);
 
   return (
@@ -43,6 +48,24 @@ export const AlarmsView: React.FC<AlarmsViewProps> = (props) => {
           <button onClick={props.onCreate} className="px-3 py-2 rounded-xl bg-indigo-600 text-white text-xs font-bold flex items-center gap-1"><Plus className="w-4 h-4"/>{t('newAlarm')}</button>
         </div>
       </div>
+
+      {capacitorBridge.isAndroid() && (
+        <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-3 text-xs">
+          <div className="flex items-center justify-between gap-2 mb-2">
+            <span className="font-black">Diagnóstico de alarmas</span>
+            <button onClick={refreshDiag} className="px-2.5 py-1.5 rounded-lg bg-slate-100 dark:bg-slate-800 font-bold text-indigo-500">{diagLoading ? 'Leyendo…' : 'Actualizar'}</button>
+          </div>
+          {diag ? <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-1 text-slate-600 dark:text-slate-300">
+            <div>Alarma exacta: <b className={diag.exactAlarm?'text-emerald-500':'text-rose-500'}>{diag.exactAlarm?'PERMITIDA':'BLOQUEADA'}</b></div>
+            <div>Pantalla completa: <b className={diag.fullScreenIntent?'text-emerald-500':'text-rose-500'}>{diag.fullScreenIntent?'PERMITIDA':'BLOQUEADA'}</b></div>
+            <div>Notificaciones: <b className={diag.notifications?'text-emerald-500':'text-rose-500'}>{diag.notifications?'PERMITIDAS':'BLOQUEADAS'}</b></div>
+            <div>Programada para: <b>{fmt(diag.scheduledFor)}</b></div>
+            <div>Receiver ejecutado: <b>{fmt(diag.receiverAt)}</b></div>
+            <div>Notificación creada: <b>{fmt(diag.notificationAt)}</b></div>
+            <div>Activity abierta: <b>{fmt(diag.activityAt)}</b></div>
+          </div> : <div className="text-slate-400">Pulsa Actualizar para leer el estado nativo de Android.</div>}
+        </div>
+      )}
 
       {props.alarms.length === 0 ? (
         <div className="py-14 text-center rounded-2xl border border-dashed border-slate-300 dark:border-slate-700"><Bell className="w-8 h-8 mx-auto text-slate-300 mb-2"/><div className="font-bold">{t('noAlarms')}</div><button onClick={props.onCreate} className="mt-3 text-sm font-bold text-indigo-500">{t('createFirst')}</button></div>
