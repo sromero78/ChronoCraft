@@ -43,6 +43,26 @@ public class AlarmPlugin extends Plugin {
     }
 
     @PluginMethod
+    public void getNativeAlarmStates(PluginCall call) {
+        com.getcapacitor.JSArray out=new com.getcapacitor.JSArray();
+        JSONArray stored=AlarmStore.load(getContext());
+        for(int i=0;i<stored.length();i++) {
+            JSONObject a=stored.optJSONObject(i);
+            if(a!=null) {
+                com.getcapacitor.JSObject item=new com.getcapacitor.JSObject();
+                item.put("id",a.optString("id"));
+                item.put("enabled",a.optBoolean("enabled",true));
+                JSONArray days=a.optJSONArray("weekdays");
+                item.put("oneShot",days==null || days.length()==0);
+                out.put(item);
+            }
+        }
+        com.getcapacitor.JSObject result=new com.getcapacitor.JSObject();
+        result.put("alarms",out);
+        call.resolve(result);
+    }
+
+    @PluginMethod
     public void getExactAlarmStatus(PluginCall call) {
         AlarmManager manager=(AlarmManager)getContext().getSystemService(Context.ALARM_SERVICE);
         boolean granted=android.os.Build.VERSION.SDK_INT < android.os.Build.VERSION_CODES.S || (manager!=null && manager.canScheduleExactAlarms());
