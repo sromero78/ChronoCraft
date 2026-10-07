@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { COLOR_KEYS, COLOR_THEMES, getColorTheme } from '../constants/colors';
 import { ChevronDown, Check } from 'lucide-react';
+import { useLanguage } from '../i18n';
 
 interface ColorFilterDropdownProps {
   selectedColor: string;
@@ -13,6 +14,7 @@ export const ColorFilterDropdown: React.FC<ColorFilterDropdownProps> = ({
   onSelectColor,
   className = '',
 }) => {
+  const { t } = useLanguage();
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
@@ -23,7 +25,7 @@ export const ColorFilterDropdown: React.FC<ColorFilterDropdownProps> = ({
   }));
 
   const allOptions = [
-    { key: 'all', label: 'All Colors', colorHex: undefined },
+    { key: 'all', label: t('allColors'), colorHex: undefined },
     ...presetOptions,
   ];
 
@@ -83,7 +85,7 @@ export const ColorFilterDropdown: React.FC<ColorFilterDropdownProps> = ({
       {isOpen && (
         <div className="absolute left-0 top-full mt-1.5 w-52 sm:w-56 bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 rounded-2xl shadow-xl z-50 p-1.5 space-y-0.5 animate-in fade-in zoom-in-95 duration-150">
           <div className="px-2.5 py-1 text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">
-            Filter by Color
+            {t('filterByColor')}
           </div>
 
           <div className="max-h-60 overflow-y-auto space-y-0.5 pr-0.5">
