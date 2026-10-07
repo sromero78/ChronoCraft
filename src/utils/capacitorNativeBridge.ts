@@ -279,17 +279,24 @@ class CapacitorNativeBridge {
     }
   }
 
+  public async getExactAlarmStatus(): Promise<boolean> {
+    if (!this.isAndroid()) return true;
+    const result = await ChronoAlarm.getExactAlarmStatus();
+    return result?.granted === true;
+  }
+
+  public async openExactAlarmSettings(): Promise<void> {
+    if (!this.isAndroid()) return;
+    await ChronoAlarm.openExactAlarmSettings();
+  }
+
   /** Synchronizes weekly alarm definitions with Android's native AlarmManager layer. */
   public async syncWeeklyAlarms(alarms: Array<{
     id: string; name: string; hour: number; minute: number; weekdays: number[];
     enabled: boolean; vibrate: boolean; gradualVolume: boolean; snoozeMinutes: number; sound: string;
   }>): Promise<void> {
     if (!this.isAndroid()) return;
-    try {
-      await ChronoAlarm.sync({ alarms });
-    } catch (e) {
-      console.warn('Native weekly alarm sync failed:', e);
-    }
+    await ChronoAlarm.sync({ alarms });
   }
 
   /**
