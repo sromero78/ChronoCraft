@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { capacitorBridge } from '../utils/capacitorNativeBridge';
 import { AlarmItem, WEEKDAYS } from '../alarmTypes';
 import { AlarmCard } from './AlarmCard';
@@ -33,6 +33,8 @@ export const AlarmsView: React.FC<AlarmsViewProps> = (props) => {
   const [diag, setDiag] = useState<any>(null);
   const [diagLoading, setDiagLoading] = useState(false);
   const refreshDiag = async () => { setDiagLoading(true); try { setDiag(await capacitorBridge.getAlarmDiagnostics()); } finally { setDiagLoading(false); } };
+  useEffect(() => { if (capacitorBridge.isAndroid()) refreshDiag(); }, []);
+  const requestNotifications = async () => { await capacitorBridge.requestAlarmNotificationPermission(); await refreshDiag(); };
   const fmt = (v: number) => v ? new Date(v).toLocaleString() : '—';
   const upcoming = useMemo(() => [...props.alarms].filter(a => a.enabled).sort((a,b) => nextOccurrence(a)-nextOccurrence(b)), [props.alarms]);
 
@@ -55,6 +57,14 @@ export const AlarmsView: React.FC<AlarmsViewProps> = (props) => {
             <span className="font-black">Diagnóstico de alarmas</span>
             <button onClick={refreshDiag} className="px-2.5 py-1.5 rounded-lg bg-slate-100 dark:bg-slate-800 font-bold text-indigo-500">{diagLoading ? 'Leyendo…' : 'Actualizar'}</button>
           </div>
+          {diag && (!diag.notifications || !diag.exactAlarm || !diag.fullScreenIntent) && <div className="mb-3 p-2.5 rounded-xl bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-900">
+            <div className="font-bold text-amber-800 dark:text-amber-300 mb-2">ChronoCraft necesita permisos para que las alarmas funcionen correctamente.</div>
+            <div className="flex flex-wrap gap-2">
+              {!diag.notifications && <button onClick={requestNotifications} className="px-2.5 py-1.5 rounded-lg bg-indigo-600 text-white font-bold">Permitir notificaciones</button>}
+              {!diag.exactAlarm && <button onClick={async()=>{await capacitorBridge.openExactAlarmSettings();}} className="px-2.5 py-1.5 rounded-lg bg-indigo-600 text-white font-bold">Permitir alarmas exactas</button>}
+              {!diag.fullScreenIntent && <button onClick={async()=>{await capacitorBridge.openFullScreenIntentSettings();}} className="px-2.5 py-1.5 rounded-lg bg-indigo-600 text-white font-bold">Permitir pantalla completa</button>}
+            </div>
+          </div>}
           {diag ? <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-1 text-slate-600 dark:text-slate-300">
             <div>Alarma exacta: <b className={diag.exactAlarm?'text-emerald-500':'text-rose-500'}>{diag.exactAlarm?'PERMITIDA':'BLOQUEADA'}</b></div>
             <div>Pantalla completa: <b className={diag.fullScreenIntent?'text-emerald-500':'text-rose-500'}>{diag.fullScreenIntent?'PERMITIDA':'BLOQUEADA'}</b></div>
