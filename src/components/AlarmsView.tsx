@@ -33,7 +33,14 @@ export const AlarmsView: React.FC<AlarmsViewProps> = (props) => {
   const [diag, setDiag] = useState<any>(null);
   const [diagLoading, setDiagLoading] = useState(false);
   const refreshDiag = async () => { setDiagLoading(true); try { setDiag(await capacitorBridge.getAlarmDiagnostics()); } finally { setDiagLoading(false); } };
-  useEffect(() => { if (capacitorBridge.isAndroid()) refreshDiag(); }, []);
+  useEffect(() => {
+    if (!capacitorBridge.isAndroid()) return;
+    refreshDiag();
+    const refreshWhenVisible=()=>{ if(document.visibilityState==='visible') refreshDiag(); };
+    window.addEventListener('focus',refreshDiag);
+    document.addEventListener('visibilitychange',refreshWhenVisible);
+    return ()=>{ window.removeEventListener('focus',refreshDiag); document.removeEventListener('visibilitychange',refreshWhenVisible); };
+  }, []);
   const requestNotifications = async () => { await capacitorBridge.requestAlarmNotificationPermission(); await refreshDiag(); };
   const fmt = (v: number) => v ? new Date(v).toLocaleString() : '—';
   const upcoming = useMemo(() => [...props.alarms].filter(a => a.enabled).sort((a,b) => nextOccurrence(a)-nextOccurrence(b)), [props.alarms]);
