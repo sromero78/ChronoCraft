@@ -279,6 +279,12 @@ class CapacitorNativeBridge {
     }
   }
 
+  public async getNativeAlarmStates(): Promise<Array<{id:string;enabled:boolean;oneShot:boolean}>> {
+    if (!this.isAndroid()) return [];
+    const result=await ChronoAlarm.getNativeAlarmStates();
+    return result?.alarms || [];
+  }
+
   public async getExactAlarmStatus(): Promise<boolean> {
     if (!this.isAndroid()) return true;
     const result = await ChronoAlarm.getExactAlarmStatus();
