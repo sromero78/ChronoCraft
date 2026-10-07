@@ -551,9 +551,31 @@ export default function App() {
     saveCustomPresets(customPresets);
   }, [customPresets]);
 
+  const alarmNativeStateReady = useRef(!capacitorBridge.isAndroid());
+
+  useEffect(() => {
+    const reconcileNativeAlarmState = async () => {
+      if (!capacitorBridge.isAndroid()) return;
+      try {
+        const native = await capacitorBridge.getNativeAlarmStates();
+        setAlarms(prev => prev.map(a => {
+          const n = native.find(x => x.id === a.id);
+          return n?.oneShot && n.enabled === false && a.weekdays.length === 0 ? { ...a, enabled: false } : a;
+        }));
+      } finally {
+        alarmNativeStateReady.current = true;
+      }
+    };
+    reconcileNativeAlarmState();
+    const onResume = () => reconcileNativeAlarmState();
+    document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') onResume(); });
+    window.addEventListener('focus', onResume);
+    return () => window.removeEventListener('focus', onResume);
+  }, []);
+
   useEffect(() => {
     saveAlarms(alarms);
-    capacitorBridge.syncWeeklyAlarms(alarms);
+    if (alarmNativeStateReady.current) capacitorBridge.syncWeeklyAlarms(alarms);
   }, [alarms]);
 
   const handleSaveAlarm = (data: Omit<AlarmItem, 'id' | 'createdAt'>, editingId?: string) => {
