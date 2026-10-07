@@ -24,6 +24,14 @@
 
         </activity>
 
+        <activity
+            android:name=".AlarmActivity"
+            android:exported="false"
+            android:excludeFromRecents="true"
+            android:showWhenLocked="true"
+            android:turnScreenOn="true"
+            android:theme="@style/AppTheme.NoActionBar" />
+
         <receiver
             android:name=".AlarmReceiver"
             android:exported="false" />
