@@ -57,9 +57,9 @@ jobs:
         working-directory: android
         env:
           CHRONOCRAFT_STORE_FILE: chronocraft-release.jks
-          CHRONOCRAFT_STORE_PASSWORD: ${{ secrets.ANDROID_STORE_PASSWORD }}
-          CHRONOCRAFT_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
-          CHRONOCRAFT_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+          CHRONOCRAFT_STORE_PASSWORD: ${{ secrets.ANDROID_SIGNING_PASSWORD }}
+          CHRONOCRAFT_KEY_ALIAS: chronocraft
+          CHRONOCRAFT_KEY_PASSWORD: ${{ secrets.ANDROID_SIGNING_PASSWORD }}
         run: ./gradlew assembleRelease
 
       - name: Prepare APK and metadata
