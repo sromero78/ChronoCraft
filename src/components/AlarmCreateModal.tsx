@@ -51,12 +51,12 @@ export const AlarmCreateModal: React.FC<AlarmCreateModalProps> = ({ isOpen, edit
 
   return (
     <div className="fixed inset-0 z-[100] bg-slate-950/60 backdrop-blur-sm flex items-end sm:items-center justify-center p-0 sm:p-4" onMouseDown={(e) => e.target === e.currentTarget && onClose()}>
-      <div className="w-full sm:max-w-lg bg-white dark:bg-slate-900 rounded-t-3xl sm:rounded-3xl border border-slate-200 dark:border-slate-800 shadow-2xl max-h-[92dvh] overflow-y-auto overscroll-contain">
-        <div className="sticky top-0 bg-white/95 dark:bg-slate-900/95 backdrop-blur px-4 py-3 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between z-10">
+      <div className="w-full sm:max-w-lg bg-white dark:bg-slate-900 rounded-t-3xl sm:rounded-3xl border border-slate-200 dark:border-slate-800 shadow-2xl h-[92dvh] sm:h-auto sm:max-h-[92dvh] flex flex-col overflow-hidden">
+        <div className="shrink-0 bg-white/95 dark:bg-slate-900/95 backdrop-blur px-4 py-3 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between z-10">
           <div className="flex items-center gap-2"><Bell className="w-5 h-5 text-indigo-500" /><h2 className="font-black">{editingAlarm ? t('editAlarm') : t('newAlarm')}</h2></div>
           <button onClick={onClose} className="p-2 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800"><X className="w-5 h-5" /></button>
         </div>
-        <div className="p-4 space-y-5">
+        <div className="p-4 space-y-4 overflow-y-auto overscroll-contain flex-1 min-h-0">
           <div className="text-center">
             <input type="time" value={time} onChange={(e) => setTime(e.target.value)} className="font-mono tabular-nums text-4xl sm:text-5xl font-black bg-transparent text-center w-full outline-none text-slate-900 dark:text-white" />
           </div>
@@ -69,6 +69,8 @@ export const AlarmCreateModal: React.FC<AlarmCreateModalProps> = ({ isOpen, edit
             <button onClick={() => setGradualVolume(!gradualVolume)} className={`p-3 rounded-xl border text-xs font-bold ${gradualVolume ? 'border-indigo-300 bg-indigo-50 dark:bg-indigo-950/40 text-indigo-600' : 'border-slate-200 dark:border-slate-700 text-slate-500'}`}>{t('gradualVolume')} {gradualVolume ? 'ON' : 'OFF'}</button>
           </div>
           <label className="block"><span className="text-xs font-bold text-slate-500">{t('snooze')}</span><select value={snoozeMinutes} onChange={(e) => setSnoozeMinutes(Number(e.target.value))} className="mt-1 w-full px-3 py-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 outline-none"><option value={0}>{t('disabled')}</option><option value={5}>5 {t('minutes')}</option><option value={10}>10 {t('minutes')}</option><option value={15}>15 {t('minutes')}</option></select></label>
+        </div>
+        <div className="shrink-0 p-3.5 border-t border-slate-200 dark:border-slate-800 bg-white/95 dark:bg-slate-900/95 backdrop-blur">
           <button onClick={submit} className="w-full py-3 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-black flex items-center justify-center gap-2"><Check className="w-4 h-4" />{t('saveAlarm')}</button>
         </div>
       </div>
