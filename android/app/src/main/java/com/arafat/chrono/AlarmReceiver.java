@@ -3,6 +3,7 @@ package com.arafat.chrono;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 public class AlarmReceiver extends BroadcastReceiver {
@@ -11,8 +12,13 @@ public class AlarmReceiver extends BroadcastReceiver {
         JSONObject alarm=AlarmStore.find(context,id);
         if(alarm==null || !alarm.optBoolean("enabled",true)) return;
 
-        // Schedule the next weekly occurrence before opening the ringing UI.
-        AlarmScheduler.schedule(context,alarm);
+        JSONArray weekdays=alarm.optJSONArray("weekdays");
+        boolean oneShot=weekdays==null || weekdays.length()==0;
+        if(oneShot) {
+            AlarmStore.setEnabled(context,id,false);
+        } else {
+            AlarmScheduler.schedule(context,alarm);
+        }
 
         Intent ring=new Intent(context,AlarmActivity.class);
         ring.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
