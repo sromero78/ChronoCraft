@@ -137,6 +137,19 @@ export const Navbar: React.FC<NavbarProps> = ({
             </button>
 
             <button
+              onClick={() => onSelectTab('alarms')}
+              className={`px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 whitespace-nowrap transition-all cursor-pointer ${
+                activeTab === 'alarms'
+                  ? 'bg-white dark:bg-slate-900 text-indigo-600 dark:text-indigo-400 shadow-xs'
+                  : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200'
+              }`}
+            >
+              <Bell className="w-3.5 h-3.5" />
+              <span>{t('alarms')} ({alarmCount})</span>
+              {enabledAlarmCount > 0 && <span className="w-1.5 h-1.5 rounded-full bg-indigo-500" />}
+            </button>
+
+            <button
               onClick={() => onSelectTab('stopwatches')}
               className={`px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 whitespace-nowrap transition-all cursor-pointer ${
                 activeTab === 'stopwatches'
@@ -166,18 +179,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               )}
             </button>
 
-            <button
-              onClick={() => onSelectTab('alarms')}
-              className={`px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 whitespace-nowrap transition-all cursor-pointer ${
-                activeTab === 'alarms'
-                  ? 'bg-white dark:bg-slate-900 text-indigo-600 dark:text-indigo-400 shadow-xs'
-                  : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200'
-              }`}
-            >
-              <Bell className="w-3.5 h-3.5" />
-              <span>{t('alarms')} ({alarmCount})</span>
-              {enabledAlarmCount > 0 && <span className="w-1.5 h-1.5 rounded-full bg-indigo-500" />}
-            </button>
+
 
             <button
               onClick={() => onSelectTab('intervals')}
@@ -201,7 +203,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             <button
               onClick={onOpenPresets}
               className="p-2 sm:py-2 sm:px-3 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors border border-slate-200 dark:border-slate-700 text-xs font-semibold flex items-center gap-1.5 cursor-pointer"
-              title="Preset Library"
+              title={t('presets')}
             >
               <Sparkles className="w-4 h-4 text-amber-500" />
               <span className="hidden sm:inline">{t('presets')}</span>
@@ -215,7 +217,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                   ? 'bg-rose-50 dark:bg-rose-950/40 text-rose-600 dark:text-rose-400 border-rose-200 dark:border-rose-800'
                   : 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 border-slate-200 dark:border-slate-700 hover:bg-slate-200 dark:hover:bg-slate-700'
               }`}
-              title={isMuted ? 'Sound Muted (Click to enable)' : 'Sound Active (Click to mute)'}
+              title={isMuted ? t('soundMuted') : t('soundActive')}
             >
               {isMuted ? <VolumeX className="w-4 h-4" /> : <Volume2 className="w-4 h-4" />}
             </button>
@@ -237,7 +239,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                     ? 'bg-indigo-50 dark:bg-indigo-950/50 text-indigo-600 dark:text-indigo-400 border-indigo-200 dark:border-indigo-800'
                     : 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 border-slate-200 dark:border-slate-700 hover:bg-slate-200 dark:hover:bg-slate-700'
                 }`}
-                title="Tools, Cues & Batch Actions"
+                title={t('tools')}
               >
                 <SlidersHorizontal className="w-4 h-4" />
               </button>
@@ -247,7 +249,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                   {/* Preferences Group */}
                   <div className="space-y-1">
                     <div className="px-2 py-1 text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">
-                      Preferences & Assist
+                      {t('preferences')}
                     </div>
                     
                     {/* History Log */}
@@ -261,9 +263,9 @@ export const Navbar: React.FC<NavbarProps> = ({
                       >
                         <div className="flex items-center gap-2">
                           <History className="w-4 h-4 text-indigo-500" />
-                          <span>Run History Logs</span>
+                          <span>{t('history')}</span>
                         </div>
-                        <span className="text-[10px] text-slate-400">View</span>
+                        <span className="text-[10px] text-slate-400">{t('view')}</span>
                       </button>
                     )}
 
@@ -278,9 +280,9 @@ export const Navbar: React.FC<NavbarProps> = ({
                       >
                         <div className="flex items-center gap-2">
                           <Settings2 className="w-4 h-4 text-indigo-500" />
-                          <span>Sound & Settings</span>
+                          <span>{t('settings')}</span>
                         </div>
-                        <span className="text-[10px] text-slate-400">Configure</span>
+                        <span className="text-[10px] text-slate-400">{t('configure')}</span>
                       </button>
                     )}
 
@@ -292,7 +294,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                       >
                         <div className="flex items-center gap-2">
                           <Sun className={`w-4 h-4 ${wakeLockActive ? 'text-amber-500 animate-spin-slow' : 'text-slate-400'}`} />
-                          <span>Screen Wake Lock</span>
+                          <span>{t('wakeLock')}</span>
                         </div>
                         <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded ${wakeLockActive ? 'bg-amber-100 dark:bg-amber-950 text-amber-700 dark:text-amber-300' : 'text-slate-400'}`}>
                           {wakeLockActive ? 'ON' : 'OFF'}
@@ -308,7 +310,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                       >
                         <div className="flex items-center gap-2">
                           {voiceEnabled ? <Mic className="w-4 h-4 text-indigo-500" /> : <MicOff className="w-4 h-4 text-slate-400" />}
-                          <span>Voice Coach</span>
+                          <span>{t('voiceCoach')}</span>
                         </div>
                         <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded ${voiceEnabled ? 'bg-indigo-100 dark:bg-indigo-950 text-indigo-700 dark:text-indigo-300' : 'text-slate-400'}`}>
                           {voiceEnabled ? 'ON' : 'OFF'}
@@ -317,7 +319,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                     )}
                   </div>
 
-                  {/* Batch Controls Group */}
+                  {/* {t('batchControls')} Group */}
                   <div className="border-t border-slate-100 dark:border-slate-800 pt-1.5 space-y-1">
                     <div className="px-2 py-1 text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">
                       Batch Controls
@@ -331,7 +333,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                       className="w-full text-left px-2.5 py-1.5 rounded-xl text-xs font-semibold text-slate-700 dark:text-slate-200 hover:bg-emerald-50 dark:hover:bg-emerald-950/40 hover:text-emerald-600 dark:hover:text-emerald-400 flex items-center gap-2 transition-colors cursor-pointer"
                     >
                       <Play className="w-3.5 h-3.5 text-emerald-500 fill-emerald-500" />
-                      <span>Start All Running</span>
+                      <span>{t('startAll')}</span>
                     </button>
 
                     <button
@@ -342,7 +344,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                       className="w-full text-left px-2.5 py-1.5 rounded-xl text-xs font-semibold text-slate-700 dark:text-slate-200 hover:bg-amber-50 dark:hover:bg-amber-950/40 hover:text-amber-600 dark:hover:text-amber-400 flex items-center gap-2 transition-colors cursor-pointer"
                     >
                       <Pause className="w-3.5 h-3.5 text-amber-500 fill-amber-500" />
-                      <span>Pause All</span>
+                      <span>{t('pauseAll')}</span>
                     </button>
 
                     <button
@@ -353,7 +355,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                       className="w-full text-left px-2.5 py-1.5 rounded-xl text-xs font-semibold text-slate-700 dark:text-slate-200 hover:bg-rose-50 dark:hover:bg-rose-950/40 hover:text-rose-600 dark:hover:text-rose-400 flex items-center gap-2 transition-colors cursor-pointer"
                     >
                       <RotateCcw className="w-3.5 h-3.5 text-rose-500" />
-                      <span>Reset All</span>
+                      <span>{t('resetAll')}</span>
                     </button>
                   </div>
                 </div>
@@ -364,7 +366,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             <button
               onClick={() => onOpenCreate(activeTab === 'stopwatches' ? 'stopwatch' : activeTab === 'intervals' ? 'interval' : 'timer')}
               className="py-2 px-3 sm:py-2 sm:px-3.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-semibold text-xs shadow-sm shadow-indigo-500/25 transition-all active:scale-95 flex items-center gap-1.5 shrink-0 cursor-pointer"
-              title="Add New Clock"
+              title={t('addClock')}
             >
               <Plus className="w-4 h-4" />
               <span className="hidden sm:inline">{t('add')}</span>
@@ -383,31 +385,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             }`}
           >
             <Layers className="w-3.5 h-3.5 shrink-0" />
-            <span>All ({totalCount})</span>
-          </button>
-
-          <button
-            onClick={() => onSelectTab('stopwatches')}
-            className={`py-1 px-2.5 rounded-lg flex items-center justify-center gap-1 shrink-0 whitespace-nowrap transition-colors cursor-pointer ${
-              activeTab === 'stopwatches'
-                ? 'bg-indigo-50 dark:bg-indigo-950/70 text-indigo-600 dark:text-indigo-400 font-bold'
-                : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200'
-            }`}
-          >
-            <Clock className="w-3.5 h-3.5 shrink-0" />
-            <span>Stopwatches ({stopwatchCount})</span>
-          </button>
-
-          <button
-            onClick={() => onSelectTab('timers')}
-            className={`py-1 px-2.5 rounded-lg flex items-center justify-center gap-1 shrink-0 whitespace-nowrap transition-colors cursor-pointer ${
-              activeTab === 'timers'
-                ? 'bg-indigo-50 dark:bg-indigo-950/70 text-indigo-600 dark:text-indigo-400 font-bold'
-                : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200'
-            }`}
-          >
-            <TimerIcon className="w-3.5 h-3.5 shrink-0" />
-            <span>Timers ({timerCount})</span>
+            <span>{t('all')} ({totalCount})</span>
           </button>
 
           <button
@@ -419,8 +397,34 @@ export const Navbar: React.FC<NavbarProps> = ({
             }`}
           >
             <Bell className="w-3.5 h-3.5 shrink-0" />
-            <span>Alarms ({alarmCount})</span>
+            <span>{t('alarms')} ({alarmCount})</span>
           </button>
+
+          <button
+            onClick={() => onSelectTab('stopwatches')}
+            className={`py-1 px-2.5 rounded-lg flex items-center justify-center gap-1 shrink-0 whitespace-nowrap transition-colors cursor-pointer ${
+              activeTab === 'stopwatches'
+                ? 'bg-indigo-50 dark:bg-indigo-950/70 text-indigo-600 dark:text-indigo-400 font-bold'
+                : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200'
+            }`}
+          >
+            <Clock className="w-3.5 h-3.5 shrink-0" />
+            <span>{t('stopwatches')} ({stopwatchCount})</span>
+          </button>
+
+          <button
+            onClick={() => onSelectTab('timers')}
+            className={`py-1 px-2.5 rounded-lg flex items-center justify-center gap-1 shrink-0 whitespace-nowrap transition-colors cursor-pointer ${
+              activeTab === 'timers'
+                ? 'bg-indigo-50 dark:bg-indigo-950/70 text-indigo-600 dark:text-indigo-400 font-bold'
+                : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200'
+            }`}
+          >
+            <TimerIcon className="w-3.5 h-3.5 shrink-0" />
+            <span>{t('timers')} ({timerCount})</span>
+          </button>
+
+
 
           <button
             onClick={() => onSelectTab('intervals')}
