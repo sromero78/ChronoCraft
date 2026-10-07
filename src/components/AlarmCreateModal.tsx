@@ -16,7 +16,7 @@ export const AlarmCreateModal: React.FC<AlarmCreateModalProps> = ({ isOpen, edit
   const { t } = useLanguage();
   const [name, setName] = useState('Despertar');
   const [time, setTime] = useState('07:00');
-  const [weekdays, setWeekdays] = useState<Weekday[]>([1,2,3,4,5]);
+  const [weekdays, setWeekdays] = useState<Weekday[]>([]);
   const [color, setColor] = useState<ColorName>('indigo');
   const [sound, setSound] = useState<SoundPreset>('digital');
   const [vibrate, setVibrate] = useState(true);
@@ -35,7 +35,7 @@ export const AlarmCreateModal: React.FC<AlarmCreateModalProps> = ({ isOpen, edit
       setGradualVolume(editingAlarm.gradualVolume);
       setSnoozeMinutes(editingAlarm.snoozeMinutes);
     } else {
-      setName('Despertar'); setTime('07:00'); setWeekdays([1,2,3,4,5]); setColor('indigo');
+      setName('Despertar'); setTime('07:00'); setWeekdays([]); setColor('indigo');
       setSound('digital'); setVibrate(true); setGradualVolume(false); setSnoozeMinutes(5);
     }
   }, [isOpen, editingAlarm]);
