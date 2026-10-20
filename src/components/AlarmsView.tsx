@@ -85,7 +85,9 @@ export const AlarmsView: React.FC<AlarmsViewProps> = (props) => {
   }, []);
   const requestNotifications = async () => { await capacitorBridge.requestAlarmNotificationPermission(); await refreshDiag(); };
   const fmt = (v: number) => v ? new Date(v).toLocaleString() : '—';
-  const upcoming = useMemo(() => [...props.alarms].filter(a => a.enabled).sort((a,b) => nextOccurrence(a)-nextOccurrence(b)), [props.alarms]);
+  const groupedIds = useMemo(() => new Set(groups.flatMap(g => g.alarmIds)), [groups]);
+  const independentAlarms = useMemo(() => props.alarms.filter(a => !groupedIds.has(a.id)), [props.alarms, groupedIds]);
+  const upcoming = useMemo(() => independentAlarms.filter(a => a.enabled).sort((a,b) => nextOccurrence(a)-nextOccurrence(b)), [independentAlarms]);
 
   return (
     <section className="space-y-4">
@@ -128,7 +130,7 @@ export const AlarmsView: React.FC<AlarmsViewProps> = (props) => {
 
       <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-3 space-y-3">
         <div className="flex items-center justify-between gap-2">
-          <div><h3 className="font-black text-sm">Grupos de alarmas</h3><p className="text-xs text-slate-400">Organiza alarmas existentes y contrólalas juntas.</p></div>
+          <div><h3 className="font-black text-sm">Grupos de alarmas</h3><p className="text-xs text-slate-400">Las alarmas agrupadas solo aparecen dentro de su grupo.</p></div>
           <button onClick={() => beginGroup()} className="px-3 py-2 rounded-xl bg-indigo-600 text-white text-xs font-bold flex items-center gap-1"><FolderPlus className="w-4 h-4"/>Nuevo grupo</button>
         </div>
         {groupEditor && <div className="rounded-xl p-3 bg-slate-50 dark:bg-slate-800 space-y-2">
@@ -152,7 +154,7 @@ export const AlarmsView: React.FC<AlarmsViewProps> = (props) => {
               <button onClick={() => removeGroup(g.id)} aria-label="Eliminar grupo"><Trash2 className="w-4 h-4 text-rose-500"/></button>
             </div>
             {open && <div className="p-3 pt-0 space-y-2">
-              <p className="text-xs text-slate-400">Añadir o retirar alarmas del grupo:</p>
+              <p className="text-xs text-slate-400">Marca una alarma para moverla a este grupo; desmárcala para devolverla a la lista general:</p>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5">{props.alarms.map(a => {
                 const checked = g.alarmIds.includes(a.id);
                 return <label key={a.id} className="flex items-center gap-2 text-xs p-2 rounded-lg bg-slate-50 dark:bg-slate-800">
@@ -169,18 +171,20 @@ export const AlarmsView: React.FC<AlarmsViewProps> = (props) => {
 
       {props.alarms.length === 0 ? (
         <div className="py-14 text-center rounded-2xl border border-dashed border-slate-300 dark:border-slate-700"><Bell className="w-8 h-8 mx-auto text-slate-300 mb-2"/><div className="font-bold">{t('noAlarms')}</div><button onClick={props.onCreate} className="mt-3 text-sm font-bold text-indigo-500">{t('createFirst')}</button></div>
+      ) : independentAlarms.length === 0 ? (
+        <div className="py-8 text-center rounded-2xl border border-dashed border-slate-300 dark:border-slate-700 text-sm text-slate-400">No hay alarmas independientes. Las alarmas de tus grupos están arriba.</div>
       ) : mode === 'next' ? (
         <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-2.5 sm:gap-4">{upcoming.map(a => <AlarmCard key={a.id} alarm={a} onToggle={props.onToggle} onEdit={props.onEdit} onDuplicate={props.onDuplicate} onDelete={props.onDelete}/>)}</div>
       ) : (
         <div className="space-y-5">
           {WEEKDAYS.map(day => {
-            const items = props.alarms.filter(a => a.weekdays.includes(day.id)).sort((a,b) => a.hour*60+a.minute-(b.hour*60+b.minute));
+            const items = independentAlarms.filter(a => a.weekdays.includes(day.id)).sort((a,b) => a.hour*60+a.minute-(b.hour*60+b.minute));
             const dayEnabled = items.some(a => a.enabled);
             return (
               <div key={day.id}>
                 <div className="flex items-center justify-between mb-2 px-0.5">
                   <div className="flex items-baseline gap-2"><h3 className="font-black text-sm uppercase tracking-wide">{day.label}</h3><span className="text-[10px] text-slate-400 font-bold">{items.length} {items.length===1?t('oneAlarm'):t('manyAlarms')}</span></div>
-                  {items.length > 0 && <button onClick={() => props.onToggleDay(day.id, !dayEnabled)} className="text-[10px] font-bold text-slate-400 hover:text-indigo-500">{dayEnabled?t('deactivateDay'):t('activateDay')}</button>}
+                  {items.length > 0 && <button onClick={() => props.onSetEnabledMany(items.map(a => a.id), !dayEnabled)} className="text-[10px] font-bold text-slate-400 hover:text-indigo-500">{dayEnabled?t('deactivateDay'):t('activateDay')}</button>}
                 </div>
                 {items.length ? <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-2.5 sm:gap-4">{items.map(a => <AlarmCard key={`${day.id}-${a.id}`} alarm={a} onToggle={props.onToggle} onEdit={props.onEdit} onDuplicate={props.onDuplicate} onDelete={props.onDelete}/>)}</div> : <button onClick={props.onCreate} className="w-full py-3 rounded-xl border border-dashed border-slate-200 dark:border-slate-800 text-xs text-slate-400 hover:text-indigo-500">+ Añadir alarma</button>}
               </div>
