@@ -1657,6 +1657,7 @@ export default function App() {
             onDuplicate={handleDuplicateAlarm}
             onDelete={handleDeleteAlarm}
             onToggleDay={handleToggleAlarmDay}
+            onSetEnabledMany={(ids, enabled) => setAlarms(prev => prev.map(a => ids.includes(a.id) ? { ...a, enabled } : a))}
           />
         ) : isTotalEmpty ? (
           <EmptyState
