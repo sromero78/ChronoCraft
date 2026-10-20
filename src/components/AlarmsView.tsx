@@ -48,7 +48,6 @@ export const AlarmsView: React.FC<AlarmsViewProps> = (props) => {
   const [groupName, setGroupName] = useState('');
   const [groupColor, setGroupColor] = useState('indigo');
   useEffect(() => { try { localStorage.setItem(GROUPS_KEY, JSON.stringify(groups)); } catch (e) { console.error('Cannot save alarm groups', e); } }, [groups]);
-  const assigned = new Set(groups.flatMap(g => g.alarmIds));
   const beginGroup = (group?: AlarmGroup) => {
     setGroupEditor(group?.id ?? 'new'); setGroupName(group?.name ?? ''); setGroupColor(group?.color ?? 'indigo');
   };
