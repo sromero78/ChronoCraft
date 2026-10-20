@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { capacitorBridge } from '../utils/capacitorNativeBridge';
 import { AlarmItem, WEEKDAYS } from '../alarmTypes';
 import { AlarmCard } from './AlarmCard';
-import { Bell, CalendarDays, ListOrdered, Plus } from 'lucide-react';
+import { Bell, CalendarDays, ListOrdered, Plus, FolderPlus, ChevronDown, ChevronRight, Trash2 } from 'lucide-react';
 import { useLanguage } from '../i18n';
 
 interface AlarmsViewProps {
@@ -13,6 +13,7 @@ interface AlarmsViewProps {
   onDuplicate: (alarm: AlarmItem) => void;
   onDelete: (id: string) => void;
   onToggleDay: (weekday: number, enabled: boolean) => void;
+  onSetEnabledMany: (ids: string[], enabled: boolean) => void;
 }
 
 function nextOccurrence(alarm: AlarmItem, now = new Date()) {
@@ -27,7 +28,49 @@ function nextOccurrence(alarm: AlarmItem, now = new Date()) {
   return Number.POSITIVE_INFINITY;
 }
 
+type AlarmGroup = { id: string; name: string; color: string; alarmIds: string[] };
+const GROUPS_KEY = 'chronocraft_alarm_groups_v1';
+const GROUP_COLORS = ['indigo', 'emerald', 'rose', 'amber', 'cyan', 'violet'];
+function readGroups(): AlarmGroup[] {
+  try {
+    const raw = localStorage.getItem(GROUPS_KEY);
+    const parsed = raw ? JSON.parse(raw) : [];
+    return Array.isArray(parsed) ? parsed.filter((g: any) => g && typeof g.id === 'string' && typeof g.name === 'string' && Array.isArray(g.alarmIds)).map((g: any) => ({
+      id: g.id, name: g.name, color: GROUP_COLORS.includes(g.color) ? g.color : 'indigo',
+      alarmIds: g.alarmIds.filter((id: unknown) => typeof id === 'string')
+    })) : [];
+  } catch { return []; }
+}
 export const AlarmsView: React.FC<AlarmsViewProps> = (props) => {
+  const [groups, setGroups] = useState<AlarmGroup[]>(readGroups);
+  const [expanded, setExpanded] = useState<string[]>([]);
+  const [groupEditor, setGroupEditor] = useState<string | null>(null);
+  const [groupName, setGroupName] = useState('');
+  const [groupColor, setGroupColor] = useState('indigo');
+  useEffect(() => { try { localStorage.setItem(GROUPS_KEY, JSON.stringify(groups)); } catch (e) { console.error('Cannot save alarm groups', e); } }, [groups]);
+  const assigned = new Set(groups.flatMap(g => g.alarmIds));
+  const beginGroup = (group?: AlarmGroup) => {
+    setGroupEditor(group?.id ?? 'new'); setGroupName(group?.name ?? ''); setGroupColor(group?.color ?? 'indigo');
+  };
+  const saveGroup = () => {
+    const name = groupName.trim(); if (!name) return;
+    if (groupEditor === 'new') {
+      const id = 'group-' + Date.now() + '-' + Math.random().toString(36).slice(2, 7);
+      setGroups(prev => [...prev, { id, name, color: groupColor, alarmIds: [] }]);
+      setExpanded(prev => [...prev, id]);
+    } else if (groupEditor) {
+      setGroups(prev => prev.map(g => g.id === groupEditor ? { ...g, name, color: groupColor } : g));
+    }
+    setGroupEditor(null);
+  };
+  const assignAlarm = (alarmId: string, groupId: string) => {
+    setGroups(prev => prev.map(g => ({ ...g, alarmIds: g.id === groupId
+      ? [...new Set([...g.alarmIds, alarmId])] : g.alarmIds.filter(id => id !== alarmId) })));
+  };
+  const removeGroup = (id: string) => {
+    if (!window.confirm('¿Eliminar el grupo? Sus alarmas se conservarán sin agrupar.')) return;
+    setGroups(prev => prev.filter(g => g.id !== id));
+  };
   const [mode, setMode] = useState<'week' | 'next'>('week');
   const { t } = useLanguage();
   const [diag, setDiag] = useState<any>(null);
@@ -83,6 +126,47 @@ export const AlarmsView: React.FC<AlarmsViewProps> = (props) => {
           </div> : <div className="text-slate-400">Pulsa Actualizar para leer el estado nativo de Android.</div>}
         </div>
       )}
+
+      <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-3 space-y-3">
+        <div className="flex items-center justify-between gap-2">
+          <div><h3 className="font-black text-sm">Grupos de alarmas</h3><p className="text-xs text-slate-400">Organiza alarmas existentes y contrólalas juntas.</p></div>
+          <button onClick={() => beginGroup()} className="px-3 py-2 rounded-xl bg-indigo-600 text-white text-xs font-bold flex items-center gap-1"><FolderPlus className="w-4 h-4"/>Nuevo grupo</button>
+        </div>
+        {groupEditor && <div className="rounded-xl p-3 bg-slate-50 dark:bg-slate-800 space-y-2">
+          <input aria-label="Nombre del grupo" value={groupName} onChange={e => setGroupName(e.target.value)} maxLength={60} placeholder="Ej.: Mañana de trabajo" className="w-full p-2 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-sm"/>
+          <div className="flex gap-2 flex-wrap" aria-label="Color del grupo">{GROUP_COLORS.map(c => <button key={c} title={c} aria-label={c} aria-pressed={groupColor===c} onClick={() => setGroupColor(c)} className={`w-7 h-7 rounded-full border-2 ${groupColor===c?'border-slate-900 dark:border-white scale-110':'border-transparent'}`} style={{backgroundColor: ({indigo:'#6366f1',emerald:'#10b981',rose:'#f43f5e',amber:'#f59e0b',cyan:'#06b6d4',violet:'#8b5cf6'} as Record<string,string>)[c]}}/>)}</div>
+          <div className="flex gap-2"><button disabled={!groupName.trim()} onClick={saveGroup} className="px-3 py-2 rounded-lg bg-indigo-600 text-white text-xs font-bold disabled:opacity-40">Guardar</button><button onClick={() => setGroupEditor(null)} className="px-3 py-2 text-xs">Cancelar</button></div>
+        </div>}
+        {groups.map(g => {
+          const members = props.alarms.filter(a => g.alarmIds.includes(a.id));
+          const allEnabled = members.length > 0 && members.every(a => a.enabled);
+          const open = expanded.includes(g.id);
+          return <div key={g.id} className="rounded-xl border border-slate-200 dark:border-slate-700 overflow-hidden">
+            <div className="flex items-center gap-2 p-2.5">
+              <button onClick={() => setExpanded(prev => open ? prev.filter(id => id !== g.id) : [...prev, g.id])} className="flex-1 min-w-0 flex items-center gap-2 text-left">
+                {open?<ChevronDown className="w-4 h-4"/>:<ChevronRight className="w-4 h-4"/>}
+                <span className="w-3 h-3 rounded-full shrink-0" style={{backgroundColor: ({indigo:'#6366f1',emerald:'#10b981',rose:'#f43f5e',amber:'#f59e0b',cyan:'#06b6d4',violet:'#8b5cf6'} as Record<string,string>)[g.color]}}/>
+                <span className="truncate text-sm font-bold">{g.name}</span><span className="text-xs text-slate-400">{members.length}</span>
+              </button>
+              <button disabled={!members.length} aria-label={allEnabled?'Desactivar grupo':'Activar grupo'} onClick={() => props.onSetEnabledMany(members.map(a => a.id), !allEnabled)} className={`text-xs font-bold px-2.5 py-1.5 rounded-lg disabled:opacity-40 ${allEnabled?'bg-emerald-100 text-emerald-700':'bg-slate-100 dark:bg-slate-800 text-slate-500'}`}>{allEnabled?'Activado':'Desactivado'}</button>
+              <button onClick={() => beginGroup(g)} className="text-xs text-indigo-500 font-bold">Editar</button>
+              <button onClick={() => removeGroup(g.id)} aria-label="Eliminar grupo"><Trash2 className="w-4 h-4 text-rose-500"/></button>
+            </div>
+            {open && <div className="p-3 pt-0 space-y-2">
+              <p className="text-xs text-slate-400">Añadir o retirar alarmas del grupo:</p>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5">{props.alarms.map(a => {
+                const checked = g.alarmIds.includes(a.id);
+                return <label key={a.id} className="flex items-center gap-2 text-xs p-2 rounded-lg bg-slate-50 dark:bg-slate-800">
+                  <input type="checkbox" checked={checked} onChange={() => assignAlarm(a.id, checked ? '' : g.id)}/>
+                  <span className="font-bold tabular-nums">{String(a.hour).padStart(2,'0')}:{String(a.minute).padStart(2,'0')}</span><span className="truncate">{a.name}</span>
+                </label>;
+              })}</div>
+              {members.length>0 && <div className="grid grid-cols-2 lg:grid-cols-3 gap-2">{members.map(a => <AlarmCard key={a.id} alarm={a} onToggle={props.onToggle} onEdit={props.onEdit} onDuplicate={props.onDuplicate} onDelete={props.onDelete}/>)}</div>}
+            </div>}
+          </div>;
+        })}
+        {groups.length===0 && <p className="text-xs text-slate-400">Todavía no hay grupos. Tus alarmas actuales no se modificarán.</p>}
+      </div>
 
       {props.alarms.length === 0 ? (
         <div className="py-14 text-center rounded-2xl border border-dashed border-slate-300 dark:border-slate-700"><Bell className="w-8 h-8 mx-auto text-slate-300 mb-2"/><div className="font-bold">{t('noAlarms')}</div><button onClick={props.onCreate} className="mt-3 text-sm font-bold text-indigo-500">{t('createFirst')}</button></div>
